@@ -7,7 +7,28 @@ on:
     branches: [main]
 
 jobs:
-  verify-template:
+  detect-changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      kotlin-spring: ${{ steps.filter.outputs.kotlin-spring }}
+      go-gin: ${{ steps.filter.outputs.go-gin }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check changed files
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            kotlin-spring: 'kotlin/spring/**'
+            go-gin: 'go/gin/**'
+
+  verify-kotlin-spring:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.kotlin-spring == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -21,8 +42,30 @@ jobs:
           disk-cache: ${{ github.workflow }}
           repository-cache: true
 
-      - name: Verify Template Builds
-        run: bazel build //...
+      - name: Verify Kotlin Spring Template Builds
+        run: bazel build //kotlin/spring/...
 
-      - name: Verify Template Tests
-        run: bazel test //...
+      - name: Verify Kotlin Spring Template Tests
+        run: bazel test //kotlin/spring/...
+
+  verify-go-gin:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.go-gin == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bazel
+        uses: bazel-contrib/setup-bazel@0.16.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+
+      - name: Verify Go Gin Template Builds
+        run: bazel build //go/gin/...
+
+      - name: Verify Go Gin Template Tests
+        run: bazel test //go/gin/...
