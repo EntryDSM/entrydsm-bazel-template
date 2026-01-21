@@ -23,8 +23,12 @@ jobs:
         id: filter
         with:
           filters: |
-            kotlin-spring: 'kotlin/spring/**'
-            go-gin: 'go/gin/**'
+            kotlin-spring:
+              - 'kotlin/spring/**'
+              - '.github/workflows/template-check.yaml'
+            go-gin:
+              - 'go/gin/**'
+              - '.github/workflows/template-check.yaml'
 
   verify-kotlin-spring:
     needs: detect-changes
@@ -65,6 +69,10 @@ jobs:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
           repository-cache: true
+
+      - name: Setup Go dependencies
+        run: bazel mod tidy
+        working-directory: go/gin
 
       - name: Verify Go Gin Template Builds
         run: bazel build //...
