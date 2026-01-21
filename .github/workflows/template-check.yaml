@@ -43,10 +43,12 @@ jobs:
           repository-cache: true
 
       - name: Verify Kotlin Spring Template Builds
-        run: bazel build //kotlin/spring/...
+        run: bazel build //...
+        working-directory: kotlin/spring
 
       - name: Verify Kotlin Spring Template Tests
-        run: bazel test //kotlin/spring/...
+        run: bazel test //...
+        working-directory: kotlin/spring
 
   verify-go-gin:
     needs: detect-changes
@@ -65,7 +67,9 @@ jobs:
           repository-cache: true
 
       - name: Verify Go Gin Template Builds
-        run: bazel build //go/gin/...
+        run: bazel build //...
+        working-directory: go/gin
 
       - name: Verify Go Gin Template Tests
-        run: bazel test //go/gin/...
+        run: bazel test //...
+        working-directory: go/gin
